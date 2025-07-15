@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFormation template to create an EC2 instance with a security group allowing SSH (port 22) and HTTP (port 5000).
+
+Resources:
+# Security Group
+MySecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: Allow SSH and HTTP traffic
+    SecurityGroupIngress:
+      # Allow SSH (port 22)
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      # Allow HTTP on port 5000
+      - IpProtocol: tcp
+        FromPort: 5000
+        ToPort: 5000
+        CidrIp: 0.0.0.0/0
+    Tags:
+      - Key: Name
+        Value: MySecurityGroup
+
+# EC2 Instance
+MyEC2Instance:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: t2.micro # Change this as needed
+    KeyName: venkat # Replace with the actual name of your key pair
+    ImageId: ami-0f918f7e67a3323f0 # Replace with a valid AMI ID for your region
+    SecurityGroupIds:
+      - !Ref MySecurityGroup
+    Tags:
+      - Key: Name
+        Value: docker
+
+Outputs:
+InstanceId:
+  Description: The Instance ID of the created EC2 instance
+  Value: !Ref MyEC2Instance
+PublicIP:
+  Description: The public IP address of the EC2 instance
+  Value: !GetAtt MyEC2Instance.PublicIp
+SecurityGroupId:
+  Description: The Security Group ID
+  Value: !Ref MySecurityGroup
